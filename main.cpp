@@ -719,6 +719,26 @@ second operator ""_second(unsigned long long int d)
     return second(d);
 }
 
+minute operator ""_minute(long double d)
+{
+    return minute(d);
+}
+
+minute operator ""_minute(unsigned long long int d)
+{
+    return minute(d);
+}
+
+hour operator ""_hour(long double d)
+{
+    return hour(d);
+}
+
+hour operator ""_hour(unsigned long long int d)
+{
+    return hour(d);
+}
+
 meters_per_second operator "" _mps(long double d)
 {
     return meters_per_second(d);
@@ -728,6 +748,34 @@ meters_per_second operator "" _mps(unsigned long long int d)
 {
     return meters_per_second(d);
 }
+
+namespace units
+{
+    using namespace units_base;
+    using namespace units_base::length;
+    using namespace units_base::mass;
+    using namespace units_base::time;
+
+    using ampere = Unit<float, Unit_Exponent<Base_Unit<unit_ratio, SI_unit::AMPERE>,1>>;
+    using volt = Unit<float,
+	Unit_Exponent<meter_base, 2>, 
+	Unit_Exponent<kilogram_base, 1>, 
+	Unit_Exponent<second_base, -3>, 
+	Unit_Exponent<Base_Unit<unit_ratio, SI_unit::AMPERE>, -1>
+    >;
+    using watt = Unit<float,
+	Unit_Exponent<meter_base, 2>,
+	Unit_Exponent<kilogram_base, 1>,
+	Unit_Exponent<second_base, -3>
+    >;
+    using joule = Unit<float,
+	Unit_Exponent<meter_base, 2>,
+	Unit_Exponent<kilogram_base, 1>, 
+	Unit_Exponent<second_base, -2>
+    >;
+}
+
+using namespace units;
 
 int main()
 {
@@ -793,6 +841,18 @@ int main()
     std::cout << "A square " << distance.getVal() << "meters times 1000meters has an area of: " << area.getVal() << " m^2" << std::endl;
     kilometers_squared area_km = area;
     std::cout << "\t" << "which equals " << area_km.getVal() << " km^2" << std::endl;
+
+    auto voltage = volt(10);
+    auto current = ampere(1.44);
+    auto power = voltage * current;
+    //static_assert(std::is_same<decltype(power), watt>::value, "");
+
+    // TODO: power * hour doesn't work
+    std::cout << voltage.getVal() << " volts * " << current.getVal() << " ampere" << std::endl;
+    std::cout << " = " << power.getVal() << " watts " << std::endl;
+    std::cout << " running it for 1 minute spends " << ((joule) (power * (second) 1_minute)).getVal() << " joules" << std::endl;
+    std::cout << " running it for 1 hour spends " << ((joule) (power * (second) 1_hour)).getVal() << " joules" << std::endl;
+
 }
 static_assert(std::is_same<decltype(meter() / second()), meters_per_second>::value, "");
 
